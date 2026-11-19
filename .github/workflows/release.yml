@@ -1,7 +1,8 @@
 name: Release
 
-# After CI passes on main, a commit whose package.json `version` has no release yet is built,
-# deployed to GitHub Pages and published as the GitHub Release `v<version>`.
+# After CI passes for a push to main, a commit whose package.json `version` has no release yet is
+# built, deployed to GitHub Pages and published as the GitHub Release `v<version>`.
+# A manual run redeploys the latest release without creating a new one.
 on:
   workflow_run:
     workflows: [CI]
@@ -12,78 +13,100 @@ on:
 permissions:
   contents: read
 
-# GitHub keeps one queued run: if several bumps merge while a release runs, the middle one is
-# skipped and its pull requests appear in the next release's notes.
+# Only runs that can release share the queue; skipped runs get their own group and never displace
+# a pending release. GitHub keeps one queued run, so when several bumps merge during a release,
+# the middle one gets no tag and its pull requests appear in the next release's notes.
 concurrency:
-  group: release
+  group: >-
+    ${{ (github.event_name == 'workflow_dispatch' ||
+    (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))
+    && 'release' || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   check:
-    # Releases only commits on main that passed CI; a manual run must also start from main.
+    # Only CI runs for pushes to this repository's main count; pull request runs (also from forks) do not.
     if: >-
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository) ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     outputs:
-      sha: ${{ steps.version.outputs.sha }}
-      tag: ${{ steps.version.outputs.tag }}
-      is-new: ${{ steps.version.outputs.is-new }}
+      ref: ${{ steps.decide.outputs.ref }}
+      tag: ${{ steps.decide.outputs.tag }}
+      deploy: ${{ steps.decide.outputs.deploy }}
+      publish: ${{ steps.decide.outputs.publish }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
 
-      - id: version
-        name: Decide whether this version needs a release
+      - id: decide
+        name: Decide what to deploy and release
         env:
           GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
           SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
-          version="$(node -p "require('./package.json').version")"
-          tag="v$version"
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          # Errors in any gh call fail the job (bash runs with -e); none of them is read as "no release".
+          tags="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1000 --json tagName --jq '[.[].tagName]')"
+          latest="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --exclude-drafts --json tagName --jq '.[0].tagName // ""')"
 
-          if output="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" 2>&1)"; then
-            echo "$tag is already released; nothing to do."
-            echo "is-new=false" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ -z "$latest" ]; then
+              echo "There is no release to redeploy."
+              exit 1
+            fi
+            echo "Redeploying $latest."
+            { echo "ref=$latest"; echo "tag=$latest"; echo "deploy=true"; echo "publish=false"; } >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if ! grep -q "release not found" <<< "$output"; then
-            echo "Could not check $tag: $output"
+
+          version="$(node -p "require('./package.json').version")"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version $version is not X.Y.Z; prereleases are not released."
             exit 1
           fi
+          tag="v$version"
 
-          # A lower or equal version than the latest release is a mistake, not a release.
-          latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2>/dev/null || echo v0.0.0)"
+          if node -e 'process.exit(JSON.parse(process.argv[1]).includes(process.argv[2]) ? 0 : 1)' "$tags" "$tag"; then
+            echo "$tag is already released; nothing to do."
+            { echo "deploy=false"; echo "publish=false"; } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # A version that is not greater than the latest release is a mistake, not a release.
           node -e '
             const parse = (tag) => tag.replace(/^v/, "").split(".").map(Number)
-            const [next, latest] = [parse(process.argv[1]), parse(process.argv[2])]
+            const [next, latest] = [parse(process.argv[1]), parse(process.argv[2] || "v0.0.0")]
             const diff = next.map((part, index) => part - latest[index]).find((part) => part !== 0) ?? 0
             if (diff <= 0) {
               console.error(`${process.argv[1]} is not greater than the latest release ${process.argv[2]}`)
               process.exit(1)
             }
           ' "$tag" "$latest"
-          echo "is-new=true" >> "$GITHUB_OUTPUT"
+
+          { echo "ref=$SHA"; echo "tag=$tag"; echo "deploy=true"; echo "publish=true"; } >> "$GITHUB_OUTPUT"
 
   build:
     needs: check
-    if: needs.check.outputs.is-new == 'true'
+    if: needs.check.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.check.outputs.sha }}
+          ref: ${{ needs.check.outputs.ref }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run build
+      # CI already type-checked this commit; the release only needs the bundle.
+      - run: npm run build-only
         env:
           PAGES_BASE: /${{ github.event.repository.name }}/
       # GitHub Pages has no SPA fallback; serving index.html as 404.html keeps deep links working.
@@ -110,6 +133,7 @@ jobs:
   release:
     # Published after the deploy, so a release always matches the live demo.
     needs: [check, deploy]
+    if: needs.check.outputs.publish == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -118,7 +142,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.check.outputs.tag }}
-          SHA: ${{ needs.check.outputs.sha }}
+          SHA: ${{ needs.check.outputs.ref }}
           PAGE_URL: ${{ needs.deploy.outputs.page-url }}
         run: |
           # Notes list the pull requests merged since the previous release, with the demo link on top.

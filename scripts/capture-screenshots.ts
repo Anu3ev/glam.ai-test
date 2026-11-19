@@ -20,18 +20,18 @@ const outputDir = 'docs/screenshots'
 const VIEWPORT = { width: 1280, height: 900 }
 
 /**
- * Waits until every image inside the viewport has settled. A broken image also counts as
- * settled, and lazy images below the fold are ignored, so the wait cannot hang.
+ * Waits until every image inside the viewport is decoded, so it is painted in the capture.
+ * A broken image also counts as settled, and lazy images below the fold are ignored, so the wait
+ * cannot hang.
  */
 async function waitForVisibleImages(page: Page): Promise<void> {
-  await page.waitForFunction(() =>
-    [...document.images]
-      .filter((image) => {
-        const box = image.getBoundingClientRect()
-        return box.width > 0 && box.bottom > 0 && box.top < innerHeight
-      })
-      .every((image) => image.complete),
-  )
+  await page.evaluate(async () => {
+    const visibleImages = [...document.images].filter((image) => {
+      const box = image.getBoundingClientRect()
+      return box.width > 0 && box.bottom > 0 && box.top < innerHeight
+    })
+    await Promise.all(visibleImages.map((image) => image.decode().catch(() => undefined)))
+  })
 }
 
 /** Waits until the heading, the mock data, the font and the visible images are ready. */
