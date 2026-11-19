@@ -1,6 +1,6 @@
 # Artven Web Studio: home page
 
-The home screen of Artven, an AI content studio, built from a Figma mockup as a test assignment. A user starts a chat, picks a creative tool or reuses a template. There is no backend: all data comes from mock functions.
+A test task for glam.ai, written with AI during a technical interview. It is the home screen of Artven, an AI content studio, built from a Figma mockup: a user starts a chat, picks a creative tool or reuses a template. There is no backend: all data comes from mock functions.
 
 [![CI](https://github.com/Anu3ev/glam.ai-test/actions/workflows/ci.yml/badge.svg)](https://github.com/Anu3ev/glam.ai-test/actions/workflows/ci.yml)
 [![Deploy](https://github.com/Anu3ev/glam.ai-test/actions/workflows/pages.yml/badge.svg)](https://github.com/Anu3ev/glam.ai-test/actions/workflows/pages.yml)
