@@ -2,6 +2,12 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · README screenshots from the production build
+
+- **Decision:** `scripts/capture-screenshots.ts` captures the README screenshots and the GitHub social preview from `vite preview` at 1280 px and waits for opening animations to end. The images are committed in `docs/screenshots/`.
+- **Why:** The dev server adds the Vue DevTools button, and a capture during a fade-in shows half-transparent dialogs. A script makes the images reproducible after design changes.
+- **Cost:** About 5 MB of PNG files in the repository; they must be recaptured when the UI changes.
+
 ## 2026-11-19 · Pointer cursor on clickable controls
 
 - **Decision:** A base rule in `src/assets/style.css` gives every enabled button, menu item, tab, option, `summary` and `select` the pointer cursor; disabled controls keep the default one. The generated shadcn-vue menu items use `cursor-pointer`, and `components.json` has `"pointer": true` so new components are generated the same way.
