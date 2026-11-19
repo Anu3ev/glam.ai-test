@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
-/** Port used by the dev server that the tests start and visit. */
-const PORT = 5180
+/** Dev server port for the tests; `E2E_PORT` lets parallel worktrees run side by side. */
+const PORT = Number(process.env.E2E_PORT ?? 5180)
 
 export default defineConfig({
   testDir: './e2e/tests',
