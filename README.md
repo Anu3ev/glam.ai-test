@@ -52,7 +52,7 @@ npm run dev
 
 ## Releases
 
-The demo shows the latest release. To ship a change, bump `version` in `package.json` in its pull request (`npm version <patch|minor|major> --no-git-tag-version`: patch for fixes, minor for features, major for breaking changes). After the merge, the Release workflow builds the app, deploys it to GitHub Pages and publishes the GitHub Release `v<version>` with the merged pull requests as notes. Merges without a version bump only run CI.
+The demo shows the latest release. To ship a change, bump `version` in `package.json` in its pull request (`npm version <patch|minor|major> --no-git-tag-version`: patch for fixes, minor for features, major for breaking changes). After the merge and a green CI run on `main`, the Release workflow builds that commit, deploys it to GitHub Pages and publishes the GitHub Release `v<version>` with the merged pull requests as notes. A merge without a version bump does not change the demo. The new version must be greater than the latest release.
 
 ## Project structure
 
