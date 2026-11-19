@@ -19,9 +19,7 @@ onMounted(() => {
 <template>
   <section aria-labelledby="ideas-title" class="flex flex-col gap-3">
     <div class="flex h-8 items-center gap-2.5">
-      <h2 id="ideas-title" class="flex-1 text-lg leading-[26px] font-bold text-[#f2f2f2]">
-        Ideas for You
-      </h2>
+      <h2 id="ideas-title" class="flex-1 text-section text-title">Ideas for You</h2>
       <button
         type="button"
         title="Refresh ideas"
@@ -47,10 +45,11 @@ onMounted(() => {
         v-else
         class="flex snap-x snap-mandatory gap-3 overflow-x-auto pr-[100px] [scrollbar-width:none]"
       >
+        <!-- Figma card: #171717 → #2c2c2c fill and a border that fades in towards the right. -->
         <li
           v-for="idea in ideas"
           :key="idea.id"
-          class="relative flex h-[100px] w-[320px] shrink-0 snap-start items-center gap-4 rounded-[20px] border border-border bg-linear-to-r from-secondary/60 to-card p-1"
+          class="relative flex h-[100px] w-[320px] shrink-0 snap-start items-center gap-4 rounded-[20px] border border-transparent [background:linear-gradient(to_right,#171717,#2c2c2c)_padding-box,linear-gradient(to_right,rgb(67_67_67/0),#434343)_border-box] p-1"
         >
           <img
             :src="idea.imageUrl"
@@ -60,10 +59,10 @@ onMounted(() => {
             class="size-[90px] shrink-0 rounded-2xl bg-accent object-cover"
           />
           <div class="flex min-w-0 flex-col gap-0.5 pr-[38px]">
-            <h3 class="truncate text-[15px] leading-[18px] font-bold text-white">
+            <h3 class="truncate text-idea text-white">
               {{ idea.title }}
             </h3>
-            <p class="truncate text-[11px] leading-4 font-medium text-[#a7a5a6]">
+            <p class="truncate text-caption text-subtle">
               {{ idea.subtitle }}
             </p>
           </div>

@@ -46,8 +46,8 @@ npm run dev
 | `npm run build` | Type-check and production build |
 | `npm run type-check` | `vue-tsc` only |
 | `npx eslint src e2e` | Lint without fixes (`npm run lint` applies fixes) |
-| `npm run test:e2e` | Playwright tests: 24 tests in 6 files |
-| `node scripts/fetch-figma.ts` | Refresh the cached Figma data; needs `FIGMA_TOKEN` in `.env.local` |
+| `npm run test:e2e` | Playwright tests, including computed-value checks against the Figma design |
+| `node scripts/fetch-figma.ts [name nodeId...]` | Refresh the cached Figma data; needs `FIGMA_TOKEN` in `.env.local` |
 | `node scripts/capture-screenshots.ts` | Update the screenshots above from a running `vite preview` |
 
 ## Project structure
@@ -60,18 +60,17 @@ npm run dev
 | `src/api/` | Mock API functions with a short delay; a real client can replace them |
 | `src/stores/` | Pinia stores; they call only `src/api/` |
 | `src/types/` | Shared data types |
-| `src/assets/style.css` | Tailwind entry and the Figma color tokens |
+| `src/assets/style.css` | Tailwind entry, Figma colors, radius steps and text styles (`text-<role>`) |
 | `e2e/tests/` | Playwright tests |
 | `scripts/` | Figma data and screenshot scripts |
 | `docs/` | Decision log, feature summaries, tooling |
 
 ## Known limitations
 
-- Images are placeholders from picsum.photos, and the logo is a Lucide icon.
-- Gradient colors are approximate: the Figma data names the gradients without their color stops.
-- The layout follows the 1280 px desktop frame; narrow screens are not tuned yet.
+- Images are placeholders from picsum.photos, the logo is a Lucide icon, and Lucide icons stand in for the Figma icon set.
+- Figma has no mobile frame: below 640 px the header drops the wordmark and the credit count; the page reflows down to 320 px.
 - In Smart Search, product profiles do not filter the grid, and "Add Profile" is a placeholder.
-- Screenshot baselines are not committed, so CI records them instead of comparing.
+- The fade over the last row of tools is left out on purpose; it would dim the only row on the Image and Video tabs.
 
 ## Documentation
 

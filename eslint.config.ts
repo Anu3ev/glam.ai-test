@@ -29,6 +29,24 @@ export default defineConfigWithVueTs(
   },
 
   {
+    name: 'app/project-cn',
+    rules: {
+      // The shadcn-vue CLI generates `import { cn } from 'cn'`, which does not know the project's text styles.
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'cn',
+              message: "Import cn from '@/lib/utils': it knows the project's text styles.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  {
     name: 'app/generated-ui',
     files: ['src/components/ui/**/*.vue'],
     rules: {

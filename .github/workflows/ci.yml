@@ -19,8 +19,14 @@ jobs:
       - run: npx eslint src e2e
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      # Baselines are not committed yet, so CI records missing screenshots; visual diffs run locally.
+      # Bootstrap: CI renders missing baselines in its own environment and uploads them to be committed.
       - run: npx playwright test --update-snapshots=missing
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshot-baselines
+          path: e2e/tests/__screenshots__
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

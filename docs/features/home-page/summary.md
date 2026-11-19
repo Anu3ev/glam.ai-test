@@ -7,8 +7,8 @@
   - `app-ideas-section`: "Ideas for You" with a refresh button that reshuffles the cards, and a horizontal scroll-snap row with a right-edge fade. Data comes from the mock `fetchIdeas` through `useIdeasStore`; skeleton cards show while it loads. "+" stores the chosen idea as `selectedIdeaId`.
   - `app-wishes-section`: category chips, a Smart Search dialog that filters by content type, and a CSS columns masonry grid with save and Use actions. Data comes from the mock `fetchWishes` through `useWishesStore`.
 - Each section is a `section` labelled by its heading; the page has one `h1`.
-- Every section has Playwright tests for its behavior and a screenshot check.
-- Open: the Smart Search "Add Profile" tile is a non-interactive placeholder and product profiles do not filter the grid. Images are placeholders from picsum.photos. Gradient stops are approximated because the Figma data names the gradients without their stops.
+- Every section has Playwright tests, and `design-fidelity.spec.ts` checks computed sizes, radii, colors and text styles against the Figma values.
+- Open: product profiles do not filter the grid and "Add Profile" is a placeholder. Images, the logo and icons are stand-ins for Figma assets.
 
 ## Why it works this way
 

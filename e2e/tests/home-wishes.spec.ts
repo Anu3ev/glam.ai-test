@@ -34,13 +34,25 @@ test.describe('Home wishes', () => {
     await expect(save).toHaveAttribute('aria-pressed', 'false')
   })
 
-  test('Use button appears on hover', async ({ page }) => {
+  test('Use button appears on hover and on keyboard focus', async ({ page }) => {
     const tile = page.getByRole('list', { name: 'Wishes' }).getByRole('listitem').first()
     const use = tile.getByRole('button', { name: 'Use Food Style 1', exact: true })
 
-    await expect(use).toHaveCSS('opacity', '0')
-    await tile.hover()
-    await expect(use).toHaveCSS('opacity', '1')
+    await expect(use).toBeHidden()
+
+    await test.step('hover shows the full-width Use button', async () => {
+      await tile.hover()
+      await expect(use).toBeVisible()
+      await page.mouse.move(0, 0)
+      await expect(use).toBeHidden()
+    })
+
+    await test.step('focus inside the tile shows it for keyboard users', async () => {
+      await tile.getByRole('button', { name: 'Save Food Style 1', exact: true }).focus()
+      await expect(use).toBeVisible()
+      await page.keyboard.press('Tab')
+      await expect(use).toBeFocused()
+    })
   })
 
   test('Smart Search filters by content type and returns focus', async ({ page }) => {

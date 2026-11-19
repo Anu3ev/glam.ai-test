@@ -13,7 +13,7 @@ onMounted(() => {
 
 <template>
   <section aria-labelledby="wishes-title" class="flex flex-col gap-3">
-    <h2 id="wishes-title" class="text-lg/[26px] font-bold text-[#f2f2f2]">Wishes</h2>
+    <h2 id="wishes-title" class="flex h-8 items-center text-section text-title">Wishes</h2>
 
     <CategoryFilter />
 

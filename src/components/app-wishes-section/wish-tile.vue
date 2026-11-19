@@ -41,15 +41,19 @@ function useWish(): void {
       <Bookmark class="size-5" :fill="isSaved ? 'currentColor' : 'none'" aria-hidden="true" />
     </button>
 
+    <!--
+      Figma tile states: the caption shows only the label (48 px); on hover it grows to 86 px
+      with a full-width Use pill. Without hover (touch screens) Use stays visible.
+    -->
     <div
-      class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-black/80 to-transparent px-4 pt-6 pb-1.5"
+      class="absolute inset-x-0 bottom-0 flex flex-col gap-3 bg-[linear-gradient(to_top,#171717_0%,rgb(23_23_23/0.2)_76%,rgb(125_125_125/0)_100%)] px-1.5 pt-4 pb-4 [@media(hover:hover)]:group-focus-within:pb-1.5 [@media(hover:hover)]:group-hover:pb-1.5 [@media(not_(hover:hover))]:pb-1.5"
     >
-      <p class="truncate py-1.5 text-[13px]/4 font-semibold text-white">{{ wish.name }}</p>
+      <p class="truncate px-2 text-control text-white">{{ wish.name }}</p>
       <button
         type="button"
         :title="`Use ${wish.name}`"
         :aria-label="`Use ${wish.name}`"
-        class="h-8 shrink-0 rounded-3xl bg-white px-3 text-[13px]/4 font-semibold text-background opacity-100 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:hover)]:opacity-0 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        class="h-9 w-full rounded-full bg-white px-4 text-control text-background focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none [@media(hover:hover)]:hidden [@media(hover:hover)]:group-focus-within:block [@media(hover:hover)]:group-hover:block"
         @click="useWish"
       >
         Use

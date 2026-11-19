@@ -2,6 +2,36 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · Design fidelity pass against Figma
+
+- **Decision:** A read-only audit compared every control with the Figma data, with a skeptic verifying each finding; 25 confirmed mismatches were fixed. Among them: mode switch and chips lost their pill radius to shadcn's `data-[spacing=0]` corner rules (fixed with `:spacing="1"`), invented hover fills were removed (Figma defines no hover state), the Smart Search dialog, menus, tile caption and gradients now use the Figma values, and the page content is 1216 px wide. `e2e/tests/design-fidelity.spec.ts` checks the computed values.
+- **Why:** The first build compared screenshots only with baselines it had recorded itself, so it could not catch differences from the mockup.
+- **Cost:** Deliberate deviations: the fade over the last tools row is left out (it would dim the only row on the Image and Video tabs), the logo stays a Lucide placeholder, and Lucide icons stand in for the Figma icon set.
+
+## 2026-11-19 · Text styles as tokens
+
+- **Decision:** Each Figma text style is a `--text-<role>` token in `src/assets/style.css` with size, line height, letter spacing and weight; components use only `text-<role>` plus the `title` and `subtle` color tokens. `src/lib/utils.ts` registers the names in `cn`, and ESLint forbids importing `cn` from the package directly. Figma's "Balance" and "Sidebar" styles are named `account` and `nav`, because `text-balance` is a Tailwind utility and `text-sidebar` collides with the `sidebar` color token.
+- **Why:** Headings looked heavier than the design because each component retyped sizes and dropped letter spacing. The default `cn` dropped unknown `text-*` classes next to a color and kept primitives' base `font-medium`.
+- **Cost:** A new text style needs an entry in both files; the shadcn CLI keeps generating `from 'cn'`, which lint now rejects until the import is changed.
+
+## 2026-11-19 · Theme radius steps and icon strokes
+
+- **Decision:** `--radius-xl` to `--radius-4xl` keep Tailwind's standard 12/16/24/32 px instead of shadcn's 14/18/22/26 px. All Lucide icons draw 1.4 px strokes at every size through a base CSS rule.
+- **Why:** Only app components use those radius steps, and Figma's pills are 16 and 24 px; Figma icons use 1.4 px strokes.
+- **Cost:** shadcn components added later that use `rounded-xl` and above get the standard values.
+
+## 2026-11-19 · Sidebar Search opens a placeholder page
+
+- **Decision:** The Figma sidebar Search entry is an icon-only link to a `/search` placeholder page, like the other out-of-scope destinations. Replaces "Search is left out" in [Sidebar destinations open a placeholder page](#2026-11-19--sidebar-destinations-open-a-placeholder-page).
+- **Why:** The sidebar layout needs the entry to match Figma, and a placeholder route gives it real behavior.
+- **Cost:** One more stub route.
+
+## 2026-11-19 · Narrow screens and committed visual baselines
+
+- **Decision:** Below 640 px the header shows the logo mark without the wordmark, hides the divider and the credit count, and keeps every action; the page has no horizontal scroll at 320 px. Screenshot baselines are rendered in CI, committed in `e2e/tests/__screenshots__`, and compared on every run.
+- **Why:** Figma has no mobile frame, but the page must reflow at 320 px. Baselines from the CI environment avoid font-rendering differences between machines.
+- **Cost:** A UI change needs new baselines from CI (the CI artifact `screenshot-baselines`).
+
 ## 2026-11-19 · README screenshots from the production build
 
 - **Decision:** `scripts/capture-screenshots.ts` captures the README screenshots and the GitHub social preview from `vite preview` at 1280 px and waits for opening animations to end. The images are committed in `docs/screenshots/`.

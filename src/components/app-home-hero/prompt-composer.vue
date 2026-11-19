@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowUp, ChevronDown, Plus, SlidersHorizontal, Sparkles } from '@lucide/vue'
+import { ArrowUp, ChevronDown, Plus, Sparkle, SlidersHorizontal } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,11 +40,11 @@ function handleEnter(event: KeyboardEvent): void {
 <template>
   <form
     aria-label="Prompt composer"
-    class="w-full max-w-[786px] rounded-3xl bg-linear-to-b from-primary/60 to-border px-1 pb-1"
+    class="w-full max-w-[786px] rounded-3xl bg-[linear-gradient(95deg,rgb(183_174_253/0.26)_0%,rgb(129_230_255/0.19)_45%,rgb(183_174_253/0.26)_90%)] px-1 pb-1"
     @submit.prevent="sendPrompt"
   >
-    <p class="flex items-center gap-1 px-3 pt-3 pb-2 text-xs leading-[15px] font-medium">
-      <Sparkles class="size-5 text-primary" aria-hidden="true" />
+    <p class="flex items-center gap-1 px-3 pt-3 pb-2 text-promo">
+      <Sparkle class="size-4 text-primary" aria-hidden="true" />
       Unlock more features with Pro
     </p>
 
@@ -54,7 +54,7 @@ function handleEnter(event: KeyboardEvent): void {
         aria-label="Prompt"
         title="Describe what you want to create"
         placeholder="Create a video ad for a skincare client."
-        class="min-h-[74px] resize-none border-0 bg-transparent px-1 py-0 text-[13px] leading-5 shadow-none placeholder:text-[#a7a5a6] focus-visible:ring-0 dark:bg-transparent"
+        class="min-h-[74px] resize-none border-0 bg-transparent px-1 py-0 text-composer shadow-none md:text-composer placeholder:text-subtle focus-visible:ring-0 dark:bg-transparent"
         @keydown.enter.exact="handleEnter"
       />
 
@@ -79,7 +79,7 @@ function handleEnter(event: KeyboardEvent): void {
               type="button"
               title="Choose model"
               :aria-label="`Model: ${model}`"
-              class="h-8 gap-[7px] rounded-3xl bg-border px-3 text-xs font-medium text-white hover:bg-accent"
+              class="h-8 gap-[7px] rounded-3xl bg-border px-3 text-mode text-white hover:bg-accent"
             >
               <SlidersHorizontal class="size-5" aria-hidden="true" />
               {{ model }}
@@ -106,7 +106,7 @@ function handleEnter(event: KeyboardEvent): void {
           title="Send prompt"
           aria-label="Send prompt"
           :disabled="!canSend"
-          class="ml-auto size-8 rounded-3xl bg-white text-background hover:bg-white/90 disabled:bg-border disabled:text-muted-foreground disabled:opacity-100"
+          class="ml-auto size-8 rounded-3xl bg-white text-background hover:bg-white/90 disabled:bg-border disabled:text-subtle disabled:opacity-100"
         >
           <ArrowUp aria-hidden="true" />
         </Button>
