@@ -25,6 +25,16 @@ function sendPrompt(): void {
   if (!canSend.value) return
   prompt.value = ''
 }
+
+/**
+ * Enter sends, Shift+Enter keeps a new line. Enter that confirms an IME
+ * composition (Japanese, Chinese) must not send and clear the text.
+ */
+function handleEnter(event: KeyboardEvent): void {
+  if (event.isComposing) return
+  event.preventDefault()
+  sendPrompt()
+}
 </script>
 
 <template>
@@ -45,7 +55,7 @@ function sendPrompt(): void {
         title="Describe what you want to create"
         placeholder="Create a video ad for a skincare client."
         class="min-h-[74px] resize-none border-0 bg-transparent px-1 py-0 text-[13px] leading-5 shadow-none placeholder:text-[#a7a5a6] focus-visible:ring-0 dark:bg-transparent"
-        @keydown.enter.exact.prevent="sendPrompt"
+        @keydown.enter.exact="handleEnter"
       />
 
       <div class="flex items-center gap-2">
