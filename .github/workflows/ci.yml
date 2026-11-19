@@ -19,7 +19,8 @@ jobs:
       - run: npx eslint src e2e
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test
+      # Baselines are not committed yet, so CI records missing screenshots; visual diffs run locally.
+      - run: npx playwright test --update-snapshots=missing
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

@@ -2,11 +2,17 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · Header actions with a mock user
+
+- **Decision:** A Pinia `user` store holds a mock account (name, email, 15 credits). The Profile menu's Sign Out clears it and the header shows "Sign in", which restores it. Upgrade and the account links open Settings; Contact Support is a `mailto:` link. Menus use shadcn-vue `DropdownMenu`. The sidebar Search entry stays out until it has behavior.
+- **Why:** Every control in the Figma header works without a backend, and no button is inert. Reka UI menus give keyboard support and focus return.
+- **Cost:** Account pages are stand-ins until they are designed.
+
 ## 2026-11-19 · Tests, CI and preview
 
 - **Decision:** Playwright (Chromium, 1280 px viewport) covers behavior and visual screenshots in `e2e/tests`. CI runs lint, type-check, build and Playwright on every PR. Every push to `main` deploys a preview to GitHub Pages (<https://anu3ev.github.io/glam.ai-test/>), with `404.html` as the SPA fallback. Node 24 LTS is pinned in `.nvmrc`.
 - **Why:** Each PR is merged only after automated checks; reviewers get a live link without running the app.
-- **Cost:** Screenshot baselines are per platform, so CI keeps its own; a design change means updating baselines with `npm run test:e2e:update`.
+- **Cost:** Screenshot baselines are git-ignored for now, so CI records them (`--update-snapshots=missing`) and visual diffs are only compared locally. Committing CI-generated baselines is open.
 
 ## 2026-11-19 · Design values from the Figma REST API
 

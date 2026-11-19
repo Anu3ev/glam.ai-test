@@ -46,3 +46,6 @@ __screenshots__/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Local agent worktrees
+.claude/worktrees/
