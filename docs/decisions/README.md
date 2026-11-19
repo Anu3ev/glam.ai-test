@@ -10,7 +10,7 @@ Newest first. A changed decision gets a new entry that links to the old one.
 
 ## 2026-11-19 · Text styles as tokens
 
-- **Decision:** Each Figma text style is a `--text-<role>` token in `src/assets/style.css` with size, line height, letter spacing and weight; components use only `text-<role>` plus the `title` and `subtle` color tokens. `src/lib/utils.ts` registers the names in `cn`, and ESLint forbids importing `cn` from the package directly. Figma's "Balance" and "Sidebar" styles are named `account` and `nav`, because `text-balance` is a Tailwind utility and `text-sidebar` collides with the `sidebar` color token.
+- **Decision:** Each Figma text style is a `--text-<role>` token in `src/assets/style.css` with size, line height, letter spacing and weight; components use only `text-<role>` plus the `title` and `subtle` color tokens; the one exception is the text wordmark that stands in for the Figma logo graphic. `e2e/tests/text-styles.spec.ts` checks that the CSS tokens and the `cn` list match. `src/lib/utils.ts` registers the names in `cn`, and ESLint forbids importing `cn` from the package directly. Figma's "Balance" and "Sidebar" styles are named `account` and `nav`, because `text-balance` is a Tailwind utility and `text-sidebar` collides with the `sidebar` color token.
 - **Why:** Headings looked heavier than the design because each component retyped sizes and dropped letter spacing. The default `cn` dropped unknown `text-*` classes next to a color and kept primitives' base `font-medium`.
 - **Cost:** A new text style needs an entry in both files; the shadcn CLI keeps generating `from 'cn'`, which lint now rejects until the import is changed.
 
@@ -28,7 +28,7 @@ Newest first. A changed decision gets a new entry that links to the old one.
 
 ## 2026-11-19 · Narrow screens and committed visual baselines
 
-- **Decision:** Below 640 px the header shows the logo mark without the wordmark, hides the divider and the credit count, and keeps every action; the page has no horizontal scroll at 320 px. Screenshot baselines are rendered in CI, committed in `e2e/tests/__screenshots__`, and compared on every run.
+- **Decision:** Below 640 px the header shows the logo mark without the wordmark, hides the divider and the credit count, and keeps every action; the page has no horizontal scroll at 320 px. Screenshot baselines are rendered in CI and committed as `*-ci.png` in `e2e/tests/__screenshots__`; CI compares against them. Local runs write git-ignored `*-local.png` files.
 - **Why:** Figma has no mobile frame, but the page must reflow at 320 px. Baselines from the CI environment avoid font-rendering differences between machines.
 - **Cost:** A UI change needs new baselines from CI (the CI artifact `screenshot-baselines`).
 
@@ -55,6 +55,7 @@ Newest first. A changed decision gets a new entry that links to the old one.
 - **Decision:** The wish grid is a `ul` with CSS `columns` (5 at 1280 px, 8 px gap) and `break-inside: avoid` tiles.
 - **Why:** Tiles of different heights pack without JavaScript measuring or a layout library.
 - **Cost:** Items flow top to bottom per column, so reading order goes down each column, not across rows.
+
 ## 2026-11-19 · Mock API and Pinia store pattern
 
 - **Decision:** Section data comes from typed mock functions in `src/api` (types in `src/types`) that resolve after a short delay, and a Pinia setup store in `src/stores` holds the data, `isLoading` and the actions. Components load on mount and render from the store. "Ideas for You" is the first case (`fetchIdeas`, `useIdeasStore`).

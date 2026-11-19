@@ -100,4 +100,13 @@ test.describe('Design fidelity', () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
     expect(overflow).toBe(0)
   })
+
+  test('the Smart Search dialog keeps a side gutter at 320 px', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 })
+    await page.getByRole('button', { name: 'Smart Search' }).click()
+
+    const box = await page.getByRole('dialog', { name: 'Smart Search' }).boundingBox()
+    expect(box?.x).toBeGreaterThanOrEqual(16)
+    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(320 - 16)
+  })
 })

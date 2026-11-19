@@ -9,8 +9,9 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
-  // Screenshots are compared per platform; CI and local machines keep separate baselines.
-  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}-{platform}{ext}',
+  // Only `-ci` baselines are committed: they are rendered in CI, where fonts render the same on
+  // every run. Local runs write `-local` files (git-ignored) so they never overwrite CI images.
+  snapshotPathTemplate: `{testDir}/__screenshots__/{testFilePath}/{arg}-${process.env.CI ? 'ci' : 'local'}{ext}`,
   expect: {
     toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled' },
   },

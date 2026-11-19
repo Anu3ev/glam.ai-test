@@ -12,6 +12,7 @@ const { user } = storeToRefs(userStore)
 <template>
   <!-- Below sm the header keeps every action and drops decoration, so it fits at 320 px. -->
   <header class="flex h-14 shrink-0 items-center justify-between gap-2 px-4 pt-4 sm:px-5">
+    <!-- The wordmark stands in for the Figma logo graphic, so it is the one text without a text-<role> style. -->
     <RouterLink
       :to="{ name: 'home' }"
       title="artven home"

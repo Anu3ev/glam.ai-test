@@ -56,7 +56,7 @@ function findTemplates(): void {
 
     <DialogContent
       :show-close-button="false"
-      class="flex max-w-[600px] flex-col gap-5 rounded-[20px] border-white/8 bg-popover p-5 sm:max-w-[600px]"
+      class="flex max-w-[min(600px,calc(100%-2rem))] flex-col gap-5 rounded-[20px] border-white/8 bg-popover p-5 sm:max-w-[min(600px,calc(100%-2rem))]"
     >
       <div class="flex h-8 items-center justify-between">
         <DialogTitle class="text-section text-title">Smart Search</DialogTitle>

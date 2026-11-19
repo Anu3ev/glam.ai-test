@@ -14,16 +14,32 @@ interface SidebarLink {
   isIconOnly?: boolean
 }
 
-/** Destinations in Figma order. Each group after the first is drawn below a divider. */
-const linkGroups: SidebarLink[][] = [
-  [{ label: 'Search', to: { name: 'search' }, icon: Search, isIconOnly: true }],
-  [
-    { label: 'Home', to: { name: 'home' }, icon: LayoutGrid },
-    { label: 'Chat', to: { name: 'chat' }, icon: MessageSquare },
-    { label: 'Saved', to: { name: 'saved' }, icon: Bookmark },
-    { label: 'Results', to: { name: 'results' }, icon: FolderOpen, hasUnread: true },
-  ],
-  [{ label: 'Settings', to: { name: 'settings' }, icon: Settings }],
+/** A run of sidebar links; groups after the first are drawn below a divider. */
+interface SidebarGroup {
+  links: SidebarLink[]
+  /** Divider and spacing above the group, from Figma (16 px to the divider, then 16 or 12 px). */
+  spacingClass: string
+}
+
+/** Destinations in Figma order. */
+const linkGroups: SidebarGroup[] = [
+  {
+    links: [{ label: 'Search', to: { name: 'search' }, icon: Search, isIconOnly: true }],
+    spacingClass: '',
+  },
+  {
+    links: [
+      { label: 'Home', to: { name: 'home' }, icon: LayoutGrid },
+      { label: 'Chat', to: { name: 'chat' }, icon: MessageSquare },
+      { label: 'Saved', to: { name: 'saved' }, icon: Bookmark },
+      { label: 'Results', to: { name: 'results' }, icon: FolderOpen, hasUnread: true },
+    ],
+    spacingClass: 'mt-4 border-t border-sidebar-border pt-4',
+  },
+  {
+    links: [{ label: 'Settings', to: { name: 'settings' }, icon: Settings }],
+    spacingClass: 'mt-4 border-t border-sidebar-border pt-3',
+  },
 ]
 </script>
 
@@ -31,11 +47,12 @@ const linkGroups: SidebarLink[][] = [
   <aside class="w-16 shrink-0 bg-sidebar px-2 py-4">
     <nav aria-label="Main">
       <ul
-        v-for="(links, groupIndex) in linkGroups"
+        v-for="(group, groupIndex) in linkGroups"
         :key="groupIndex"
-        class="flex flex-col gap-1 not-first:mt-4 not-first:border-t not-first:border-sidebar-border not-first:pt-4 last:pt-3"
+        class="flex flex-col gap-1"
+        :class="group.spacingClass"
       >
-        <li v-for="link in links" :key="link.label">
+        <li v-for="link in group.links" :key="link.label">
           <RouterLink v-slot="{ isExactActive, href, navigate }" :to="link.to" custom>
             <a
               :href="href"

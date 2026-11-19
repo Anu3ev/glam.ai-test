@@ -1,7 +1,10 @@
 import { createCn } from 'cn/config'
 
-/** Text style names defined as `--text-*` in `src/assets/style.css`. */
-const TEXT_STYLES = [
+/**
+ * Text style names defined as `--text-*` in `src/assets/style.css`.
+ * `e2e/tests/text-styles.spec.ts` fails when the two lists drift apart.
+ */
+export const TEXT_STYLES = [
   'hero',
   'section',
   'idea',

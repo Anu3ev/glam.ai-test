@@ -39,7 +39,8 @@ coverage
 # Figma API responses (private design data)
 .figma-cache
 
-# Playwright
+# Playwright (local screenshot baselines; CI baselines are committed)
+*-local.png
 /test-results/
 /playwright-report/
 /blob-report/

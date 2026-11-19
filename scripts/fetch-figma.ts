@@ -15,6 +15,12 @@ const FILE_KEY = 'kU4QjBSdDHbwSVZLSm9VTL'
 const DEFAULT_NODE_IDS = ['3:103', '76:3404', '96:5168']
 
 const [outputName = 'nodes', ...requestedNodeIds] = process.argv.slice(2)
+
+// A name without node ids, or a node id in the name position, would silently save the wrong frames.
+if (outputName.includes(':') || (outputName !== 'nodes' && requestedNodeIds.length === 0)) {
+  throw new Error('Usage: node scripts/fetch-figma.ts [name nodeId...], for example: ui-kit 71:178')
+}
+
 const nodeIds = requestedNodeIds.length > 0 ? requestedNodeIds : DEFAULT_NODE_IDS
 const outputPath = `.figma-cache/${outputName}.json`
 
