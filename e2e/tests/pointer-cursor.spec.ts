@@ -20,6 +20,37 @@ test.describe('Pointer cursor', () => {
     }
   })
 
+  test('tabs, toggles and chips show the pointer', async ({ page }) => {
+    await test.step('mode switch and category chips', async () => {
+      await expect(
+        page.getByRole('group', { name: 'Create mode' }).getByRole('button', { name: 'Tools' }),
+      ).toHaveCSS('cursor', 'pointer')
+      await expect(
+        page.getByRole('group', { name: 'Wish categories' }).getByRole('button', { name: 'Food' }),
+      ).toHaveCSS('cursor', 'pointer')
+    })
+
+    await test.step('tools tabs and tool rows', async () => {
+      await page.goto('/?mode=tools')
+      const tabs = page.getByRole('tab')
+      await expect(tabs).not.toHaveCount(0)
+      for (const tab of await tabs.all()) {
+        await expect(tab).toHaveCSS('cursor', 'pointer')
+      }
+      await expect(page.getByRole('button', { name: /Create Image/ })).toHaveCSS(
+        'cursor',
+        'pointer',
+      )
+    })
+
+    await test.step('Smart Search chips', async () => {
+      await page.getByRole('button', { name: 'Smart Search' }).click()
+      await expect(
+        page.getByRole('dialog').getByRole('button', { name: 'Photo', exact: true }),
+      ).toHaveCSS('cursor', 'pointer')
+    })
+  })
+
   test('menu items in a portal show the pointer', async ({ page }) => {
     await page.getByRole('button', { name: 'Profile menu' }).click()
 
