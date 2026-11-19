@@ -1,0 +1,76 @@
+name: Release
+
+# A merge to main that carries a new `version` in package.json deploys the build to GitHub Pages
+# and publishes the GitHub Release `v<version>`. Merges without a version bump release nothing.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: version
+        name: Find the version to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          if gh release view "v$version" > /dev/null 2>&1; then
+            echo "v$version is already released; nothing to do."
+            echo "is-new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "is-new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.version.outputs.is-new == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - if: steps.version.outputs.is-new == 'true'
+        run: npm ci
+      - if: steps.version.outputs.is-new == 'true'
+        run: npm run build
+        env:
+          PAGES_BASE: /${{ github.event.repository.name }}/
+      # GitHub Pages has no SPA fallback; serving index.html as 404.html keeps deep links working.
+      - if: steps.version.outputs.is-new == 'true'
+        run: cp dist/index.html dist/404.html
+      - if: steps.version.outputs.is-new == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - if: steps.version.outputs.is-new == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # The release is created after the deploy, so a published release always matches the live demo.
+      - if: steps.version.outputs.is-new == 'true'
+        name: Publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          # Notes list the pull requests merged since the previous release, with the demo link on top.
+          changes="$(gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+            -f tag_name="$TAG" -f target_commitish="$GITHUB_SHA" --jq .body)"
+          printf 'Demo: %s\n\n%s\n' "$PAGE_URL" "$changes" > release-notes.md
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file release-notes.md

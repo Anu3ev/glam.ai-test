@@ -26,6 +26,13 @@ async function waitForContent(page: Page): Promise<void> {
   await page.evaluate(() => document.fonts.ready)
 }
 
+/** Waits until every image on the page has loaded, including lazy images inside a just-opened dialog. */
+async function waitForImages(page: Page): Promise<void> {
+  await page.waitForFunction(() =>
+    [...document.images].every((image) => image.complete && image.naturalWidth > 0),
+  )
+}
+
 /** Waits until opening animations end, so dialogs and menus are captured fully opaque. */
 async function waitForAnimations(page: Page): Promise<void> {
   await page.evaluate(() =>
@@ -54,6 +61,7 @@ await page.screenshot({ path: `${outputDir}/home-tools.png` })
 
 await page.getByRole('button', { name: 'Smart Search' }).click()
 await page.getByRole('dialog').waitFor()
+await waitForImages(page)
 await waitForAnimations(page)
 await page.screenshot({ path: `${outputDir}/smart-search.png` })
 await page.keyboard.press('Escape')

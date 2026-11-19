@@ -3,7 +3,7 @@
 A test task for glam.ai, written with AI during a technical interview. It is the home screen of Artven, an AI content studio, built from a Figma mockup: a user starts a chat, picks a creative tool or reuses a template. There is no backend: all data comes from mock functions.
 
 [![CI](https://github.com/Anu3ev/glam.ai-test/actions/workflows/ci.yml/badge.svg)](https://github.com/Anu3ev/glam.ai-test/actions/workflows/ci.yml)
-[![Deploy](https://github.com/Anu3ev/glam.ai-test/actions/workflows/pages.yml/badge.svg)](https://github.com/Anu3ev/glam.ai-test/actions/workflows/pages.yml)
+[![Release](https://github.com/Anu3ev/glam.ai-test/actions/workflows/release.yml/badge.svg)](https://github.com/Anu3ev/glam.ai-test/actions/workflows/release.yml)
 
 **Demo:** <https://anu3ev.github.io/glam.ai-test/>
 
@@ -49,6 +49,10 @@ npm run dev
 | `npm run test:e2e` | Playwright tests, including computed-value checks against the Figma design |
 | `node scripts/fetch-figma.ts [name nodeId...]` | Refresh the cached Figma data; needs `FIGMA_TOKEN` in `.env.local` |
 | `node scripts/capture-screenshots.ts` | Update the screenshots above from a running `vite preview` |
+
+## Releases
+
+The demo shows the latest release. To ship a change, bump `version` in `package.json` in its pull request (`npm version <patch|minor|major> --no-git-tag-version`: patch for fixes, minor for features, major for breaking changes). After the merge, the Release workflow builds the app, deploys it to GitHub Pages and publishes the GitHub Release `v<version>` with the merged pull requests as notes. Merges without a version bump only run CI.
 
 ## Project structure
 

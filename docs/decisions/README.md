@@ -2,6 +2,18 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · Releases deploy the demo
+
+- **Decision:** `.github/workflows/release.yml` replaces the deploy-on-every-push Pages workflow. A merge to `main` whose `package.json` version has no release yet builds the app, deploys it to GitHub Pages and then publishes the GitHub Release `v<version>` with notes generated from the merged pull requests. The version starts at 1.1.0 (the design fidelity work after `v1.0.0`). Replaces the deploy part of [Tests, CI and preview](#2026-11-19--tests-ci-and-preview).
+- **Why:** The demo should match a named version, and each version should have notes. Before this, `v1.0.0` was made by hand and `package.json` said `0.0.0`.
+- **Cost:** A change reaches the demo only when its pull request bumps the version.
+
+## 2026-11-19 · Modern Web Guidance was not used during the build
+
+- **Decision:** Correction of [Modern Web Guidance without installing](#2026-11-19--modern-web-guidance-without-installing): the CLI was checked but never consulted while building the page. From now on, the user's `code-writer` skill makes it mandatory before UI, CSS or client-side browser code: pinned version, `DISABLE_TELEMETRY=1`, no installation, and the user's rules and project decisions take priority over its guides.
+- **Why:** The earlier entry described an intention as if it were practice.
+- **Cost:** The existing components have not been checked against the guidance yet.
+
 ## 2026-11-19 · Design fidelity pass against Figma
 
 - **Decision:** A read-only audit compared every control with the Figma data, with a skeptic verifying each finding; 25 confirmed mismatches were fixed. Among them: mode switch and chips lost their pill radius to shadcn's `data-[spacing=0]` corner rules (fixed with `:spacing="1"`), invented hover fills were removed (Figma defines no hover state), the Smart Search dialog, menus, tile caption and gradients now use the Figma values, and the page content is 1216 px wide. `e2e/tests/design-fidelity.spec.ts` checks the computed values.
