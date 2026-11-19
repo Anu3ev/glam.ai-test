@@ -11,8 +11,8 @@ import {
 import { useWishesStore } from '@/stores/wishes'
 import { WISH_CONTENT_TYPES, type WishContentType } from '@/types/wish'
 
-/** Product profiles offered by the mock; the first one stands for creating a new profile. */
-const PROFILES = ['Add Profile', 'Profile 1', 'Profile 2'] as const
+/** Product profiles offered by the mock. Creating a profile is not built yet. */
+const PROFILES = ['Profile 1', 'Profile 2'] as const
 
 const store = useWishesStore()
 
@@ -63,6 +63,17 @@ function findTemplates(): void {
         </DialogDescription>
 
         <div class="flex gap-3">
+          <div
+            class="flex w-20 flex-col items-center gap-2 py-2 text-xs font-medium text-muted-foreground"
+          >
+            <span
+              class="flex size-[60px] items-center justify-center rounded-full border border-dashed border-muted-foreground"
+            >
+              <Plus class="size-5" aria-hidden="true" />
+            </span>
+            Add Profile
+          </div>
+
           <button
             v-for="profile in PROFILES"
             :key="profile"
@@ -75,9 +86,7 @@ function findTemplates(): void {
             <span
               class="flex size-[60px] items-center justify-center overflow-hidden rounded-full bg-border"
             >
-              <Plus v-if="profile === 'Add Profile'" class="size-5" aria-hidden="true" />
               <img
-                v-else
                 :src="`https://picsum.photos/seed/${profile.replace(' ', '-')}/120/120`"
                 alt=""
                 loading="lazy"

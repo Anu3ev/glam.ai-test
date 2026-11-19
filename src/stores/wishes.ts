@@ -12,17 +12,27 @@ export const useWishesStore = defineStore('wishes', () => {
   const selectedWishId = ref<string | null>(null)
   const isLoading = ref(false)
 
-  /** Loads wishes for the current filters. */
+  /** Id of the newest load request; older responses are ignored. */
+  let latestRequestId = 0
+
+  /** Loads wishes for the current filters. Only the latest request updates the state. */
   async function load(): Promise<void> {
+    const requestId = ++latestRequestId
     isLoading.value = true
 
     try {
-      wishes.value = await fetchWishes({
+      const result = await fetchWishes({
         category: activeCategory.value,
-        contentTypes: contentTypes.value,
+        contentTypes: [...contentTypes.value],
       })
+
+      if (requestId === latestRequestId) {
+        wishes.value = result
+      }
     } finally {
-      isLoading.value = false
+      if (requestId === latestRequestId) {
+        isLoading.value = false
+      }
     }
   }
 

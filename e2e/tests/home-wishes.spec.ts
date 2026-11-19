@@ -34,6 +34,15 @@ test.describe('Home wishes', () => {
     await expect(save).toHaveAttribute('aria-pressed', 'false')
   })
 
+  test('Use button appears on hover', async ({ page }) => {
+    const tile = page.getByRole('list', { name: 'Wishes' }).getByRole('listitem').first()
+    const use = tile.getByRole('button', { name: 'Use Food Style 1', exact: true })
+
+    await expect(use).toHaveCSS('opacity', '0')
+    await tile.hover()
+    await expect(use).toHaveCSS('opacity', '1')
+  })
+
   test('Smart Search filters by content type and returns focus', async ({ page }) => {
     const trigger = page.getByRole('button', { name: 'Smart Search' })
     const dialog = page.getByRole('dialog', { name: 'Smart Search' })

@@ -49,7 +49,7 @@ function useWish(): void {
         type="button"
         :title="`Use ${wish.name}`"
         :aria-label="`Use ${wish.name}`"
-        class="h-8 shrink-0 rounded-3xl bg-white px-3 text-[13px]/4 font-semibold text-background opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        class="h-8 shrink-0 rounded-3xl bg-white px-3 text-[13px]/4 font-semibold text-background opacity-100 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:hover)]:opacity-0 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
         @click="useWish"
       >
         Use
