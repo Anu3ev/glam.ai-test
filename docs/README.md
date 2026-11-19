@@ -4,6 +4,7 @@
 | --- | --- |
 | [Decision log](decisions/README.md) | Every product, architecture and tooling decision with its reason and cost |
 | [Features](features/README.md) | One folder per feature: current summary and, for planned work, a plan |
+| [Tooling](tooling.md) | Adopted and rejected libraries, dependency safety checks and rules |
 
 Rules:
 

@@ -37,3 +37,12 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# Figma API responses (private design data)
+.figma-cache
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

@@ -52,10 +52,10 @@ Design frames are desktop only (1280 px wide).
 
 | Question | Where it is decided | Current proposal |
 | --- | --- | --- |
-| Edit or Dev Mode access to Figma, exported images and icons | Owner | Request access; until then use Lucide icons and placeholder images |
+| How to read exact sizes and gaps from Figma | Owner | The file allows "Duplicate to your drafts" (checked 2026-11-19). Read the duplicate through the REST API with a personal access token (Full seat on Starter: 10 requests/minute). Fallback: REST or Figma MCP on the original with a View seat, 20 calls/month each |
+| Exported images and icons | Owner | Export through the REST API from a duplicate, or ask the designer; until then Lucide icons and placeholder images |
 | Mobile and tablet layouts | Owner | Desktop first; keep layouts fluid down to 320 px |
 | Initial auth state of the mock user | Owner | Signed in, so the Profile menu is reachable |
-| Inter from Google Fonts or self-hosted | Step 2 | Self-host with `@fontsource/inter` to avoid the external request |
 
 ## Done when
 
