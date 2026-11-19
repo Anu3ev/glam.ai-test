@@ -1,0 +1,170 @@
+name: Release
+
+# After CI passes for a push to main, a commit whose package.json `version` has no release yet is
+# built, deployed to GitHub Pages and published as the GitHub Release `v<version>`.
+# A manual run redeploys the latest release without creating a new one.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Only runs that can release share the queue; skipped runs get their own group and never displace
+# a pending release. Known limits: GitHub keeps one queued run, and runs start in the order CI
+# finishes, so with several quick bumps a middle version can get no tag (its pull requests appear
+# in the next release's notes) or an older bump can fail as "not greater". If the deploy succeeds
+# but publishing fails, re-run the failed job to publish the release for the live demo.
+concurrency:
+  group: >-
+    ${{ (github.event_name == 'workflow_dispatch' ||
+    (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))
+    && 'release' || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    # Only CI runs for pushes to this repository's main count; pull request runs (also from forks) do not.
+    if: >-
+      (github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository) ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.decide.outputs.ref }}
+      tag: ${{ steps.decide.outputs.tag }}
+      deploy: ${{ steps.decide.outputs.deploy }}
+      publish: ${{ steps.decide.outputs.publish }}
+    steps:
+      # A manual run only redeploys the latest release, so it does not need the commit's files.
+      - if: github.event_name == 'workflow_run'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - id: decide
+        name: Decide what to deploy and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          # Errors in any gh call fail the job (bash runs with -e); none of them is read as "no release".
+          # Published, stable releases only: drafts and prereleases neither block nor count as latest.
+          tags="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases" \
+            --jq '.[] | select((.draft or .prerelease) | not) | .tag_name')"
+          latest="$(node -e '
+            const stable = process.argv[1].split("\n").filter((tag) => /^v\d+\.\d+\.\d+$/.test(tag))
+            const parse = (tag) => tag.slice(1).split(".").map(Number)
+            const compare = (a, b) => parse(a).map((part, i) => part - parse(b)[i]).find((d) => d !== 0) ?? 0
+            console.log(stable.sort(compare).at(-1) ?? "")
+          ' "$tags")"
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ -z "$latest" ]; then
+              echo "There is no release to redeploy."
+              exit 1
+            fi
+            echo "Redeploying $latest."
+            { echo "ref=$latest"; echo "tag=$latest"; echo "deploy=true"; echo "publish=false"; } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          version="$(node -p "require('./package.json').version")"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version $version is not X.Y.Z; prereleases are not released."
+            exit 1
+          fi
+          tag="v$version"
+
+          if grep -qx "$tag" <<< "$tags"; then
+            echo "$tag is already released; nothing to do."
+            { echo "deploy=false"; echo "publish=false"; } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # A git tag without a release would make the release point at that old commit, not this one.
+          if [ -n "$(git ls-remote --tags "https://github.com/$GITHUB_REPOSITORY.git" "refs/tags/$tag")" ]; then
+            echo "Tag $tag exists without a published release; delete the tag or bump the version."
+            exit 1
+          fi
+
+          # A version that is not greater than the latest release is a mistake, not a release.
+          node -e '
+            const parse = (tag) => tag.slice(1).split(".").map(Number)
+            const [next, latest] = [parse(process.argv[1]), parse(process.argv[2] || "v0.0.0")]
+            const diff = next.map((part, index) => part - latest[index]).find((part) => part !== 0) ?? 0
+            if (diff <= 0) {
+              console.error(`${process.argv[1]} is not greater than the latest release ${process.argv[2]}`)
+              process.exit(1)
+            }
+          ' "$tag" "$latest"
+
+          { echo "ref=$SHA"; echo "tag=$tag"; echo "deploy=true"; echo "publish=true"; } >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: check
+    if: needs.check.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.check.outputs.ref }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # CI already type-checked this commit; the release only needs the bundle.
+      - run: npm run build-only
+        env:
+          PAGES_BASE: /${{ github.event.repository.name }}/
+      # GitHub Pages has no SPA fallback; serving index.html as 404.html keeps deep links working.
+      - run: cp dist/index.html dist/404.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page-url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  release:
+    # Published after the deploy, so a release always matches the live demo.
+    needs: [check, deploy]
+    if: needs.check.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.check.outputs.tag }}
+          SHA: ${{ needs.check.outputs.ref }}
+          PAGE_URL: ${{ needs.deploy.outputs.page-url }}
+        run: |
+          # Notes list the pull requests merged since the previous release, with the demo link on top.
+          changes="$(gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+            -f tag_name="$TAG" -f target_commitish="$SHA" --jq .body)"
+          printf 'Demo: %s\n\n%s\n' "$PAGE_URL" "$changes" > release-notes.md
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$SHA" --title "$TAG" \
+            --notes-file release-notes.md

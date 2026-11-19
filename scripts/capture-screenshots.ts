@@ -19,11 +19,32 @@ const outputDir = 'docs/screenshots'
 /** Desktop size of the Figma frames. */
 const VIEWPORT = { width: 1280, height: 900 }
 
-/** Waits until the mock data and lazy images of the page have loaded. */
+/**
+ * Waits until every image inside the viewport is decoded, so it is painted in the capture.
+ * A broken image also counts as settled, lazy images below the fold are ignored, and a stalled
+ * request fails after 15 s.
+ */
+async function waitForVisibleImages(page: Page): Promise<void> {
+  const imagesDecoded = page.evaluate(async () => {
+    const visibleImages = [...document.images].filter((image) => {
+      const box = image.getBoundingClientRect()
+      return box.width > 0 && box.bottom > 0 && box.top < innerHeight
+    })
+    await Promise.all(visibleImages.map((image) => image.decode().catch(() => undefined)))
+  })
+  // A stalled image request must fail the capture loudly instead of hanging it.
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('Images did not load within 15 s')), 15_000).unref(),
+  )
+  await Promise.race([imagesDecoded, timeout])
+}
+
+/** Waits until the heading, the mock data, the font and the visible images are ready. */
 async function waitForContent(page: Page): Promise<void> {
   await page.getByRole('heading', { level: 1 }).waitFor()
   await page.waitForLoadState('networkidle')
   await page.evaluate(() => document.fonts.ready)
+  await waitForVisibleImages(page)
 }
 
 /** Waits until opening animations end, so dialogs and menus are captured fully opaque. */
@@ -54,6 +75,7 @@ await page.screenshot({ path: `${outputDir}/home-tools.png` })
 
 await page.getByRole('button', { name: 'Smart Search' }).click()
 await page.getByRole('dialog').waitFor()
+await waitForVisibleImages(page)
 await waitForAnimations(page)
 await page.screenshot({ path: `${outputDir}/smart-search.png` })
 await page.keyboard.press('Escape')
