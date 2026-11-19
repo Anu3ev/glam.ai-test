@@ -28,6 +28,15 @@ export default defineConfigWithVueTs(
     },
   },
 
+  {
+    name: 'app/generated-ui',
+    files: ['src/components/ui/**/*.vue'],
+    rules: {
+      // shadcn-vue generates single-word primitives (Button, Dialog); keep them as generated.
+      'vue/multi-word-component-names': 'off',
+    },
+  },
+
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
   skipFormatting,
