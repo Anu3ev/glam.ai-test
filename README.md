@@ -13,10 +13,12 @@ npm install
 npm run dev          # local dev server
 npm run type-check   # vue-tsc
 npm run build        # type-check + production build
-npx eslint src       # read-only lint (npm run lint applies fixes)
+npx eslint src e2e   # read-only lint (npm run lint applies fixes)
+npm run test:e2e     # Playwright behavior and screenshot tests
+node scripts/fetch-figma.ts  # refresh .figma-cache (needs FIGMA_TOKEN in .env.local)
 ```
 
-Node `^22.18.0 || >=24.12.0` is required; an LTS release is recommended.
+Node 24 LTS (`.nvmrc`). Preview: <https://anu3ev.github.io/glam.ai-test/>
 
 ## Structure
 

@@ -7,6 +7,8 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages serves the app from /<repository>/; local runs stay at the root.
+  base: process.env.PAGES_BASE ?? '/',
   plugins: [
     vue(),
     tailwindcss(),
