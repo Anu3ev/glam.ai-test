@@ -11,13 +11,22 @@ export const useIdeasStore = defineStore('ideas', () => {
   /** Idea chosen with its "+" button; the composer will read it later. */
   const selectedIdeaId = ref<string | null>(null)
 
-  /** Loads the ideas from the mock API. */
+  /** Id of the newest `load()` call; older responses are ignored. */
+  let latestRequestId = 0
+
+  /** Loads the ideas from the mock API; only the latest call updates the state. */
   async function load(): Promise<void> {
+    const requestId = ++latestRequestId
     isLoading.value = true
     try {
-      ideas.value = await fetchIdeas()
+      const loadedIdeas = await fetchIdeas()
+      if (requestId === latestRequestId) {
+        ideas.value = loadedIdeas
+      }
     } finally {
-      isLoading.value = false
+      if (requestId === latestRequestId) {
+        isLoading.value = false
+      }
     }
   }
 

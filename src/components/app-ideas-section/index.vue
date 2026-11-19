@@ -17,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <section aria-labelledby="ideas-title" class="flex flex-col gap-3 px-5">
+  <section aria-labelledby="ideas-title" class="flex flex-col gap-3">
     <div class="flex h-8 items-center gap-2.5">
       <h2 id="ideas-title" class="flex-1 text-lg leading-[26px] font-bold text-[#f2f2f2]">
         Ideas for You
@@ -34,8 +34,8 @@ onMounted(() => {
       </button>
     </div>
 
-    <div class="relative">
-      <ul v-if="isLoading" class="flex gap-3 overflow-hidden" aria-label="Loading ideas">
+    <div class="relative" :aria-busy="isLoading">
+      <ul v-if="isLoading" class="flex gap-3 overflow-hidden" aria-hidden="true">
         <li
           v-for="index in SKELETON_COUNT"
           :key="index"
