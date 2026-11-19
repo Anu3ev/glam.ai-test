@@ -2,6 +2,17 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · Smart Search filters locally in the mock API
+
+- **Decision:** `fetchWishes({ category, contentTypes })` in `src/api/wishes.ts` filters 30 generated wishes by category and Smart Search content types after a 300 ms delay. The store keeps the applied filters and reloads through the same call.
+- **Why:** The component code already calls the API with real parameters, so a backend can replace the mock without touching the UI.
+- **Cost:** Product profiles are selectable but do not filter yet; there is no profile data to filter by.
+
+## 2026-11-19 · CSS columns masonry
+
+- **Decision:** The wish grid is a `ul` with CSS `columns` (5 at 1280 px, 8 px gap) and `break-inside: avoid` tiles.
+- **Why:** Tiles of different heights pack without JavaScript measuring or a layout library.
+- **Cost:** Items flow top to bottom per column, so reading order goes down each column, not across rows.
 ## 2026-11-19 · Mock API and Pinia store pattern
 
 - **Decision:** Section data comes from typed mock functions in `src/api` (types in `src/types`) that resolve after a short delay, and a Pinia setup store in `src/stores` holds the data, `isLoading` and the actions. Components load on mount and render from the store. "Ideas for You" is the first case (`fetchIdeas`, `useIdeasStore`).
