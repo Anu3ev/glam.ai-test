@@ -2,11 +2,24 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · Mock API and Pinia store pattern
+
+- **Decision:** Section data comes from typed mock functions in `src/api` (types in `src/types`) that resolve after a short delay, and a Pinia setup store in `src/stores` holds the data, `isLoading` and the actions. Components load on mount and render from the store. "Ideas for You" is the first case (`fetchIdeas`, `useIdeasStore`).
+- **Why:** Components never know where data comes from, so a real backend replaces only the `src/api` function; the delay keeps loading states visible and testable.
+- **Cost:** Each data source adds three small files; the mock data lives in the bundle until a backend exists.
+
+## 2026-11-19 · Native scroll-snap row instead of a carousel
+
+- **Decision:** The idea cards row is a `ul` with `overflow-x-auto` and CSS scroll-snap, plus a decorative right-edge fade. No carousel library.
+- **Why:** Native scrolling works with touch, trackpad and keyboard focus out of the box and adds no dependency.
+- **Cost:** No prev/next arrows or pagination dots; adding them later means writing a small scroll helper.
+
 ## 2026-11-19 · Chat/Tools mode in the URL query
 
 - **Decision:** The home hero keeps its Chat/Tools mode in `?mode=tools` (no query means Chat), read and written through vue-router in `app-home-hero/use-hero-mode.ts`. Switching uses `router.replace`.
 - **Why:** A link or reload opens the same mode, and no store is needed for one value that only the hero uses.
 - **Cost:** Other query parameters must be preserved when the mode changes; switching does not add browser history entries.
+
 ## 2026-11-19 · Header actions with a mock user
 
 - **Decision:** A Pinia `user` store holds a mock account (name, email, 15 credits). The Profile menu's Sign Out clears it and the header shows "Sign in", which restores it. Upgrade and the account links open Settings; Contact Support is a `mailto:` link. Menus use shadcn-vue `DropdownMenu`. The sidebar Search entry stays out until it has behavior.
