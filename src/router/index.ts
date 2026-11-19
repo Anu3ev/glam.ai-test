@@ -24,6 +24,12 @@ const router = createRouter({
       meta: { title: 'Home' },
     },
     {
+      path: '/search',
+      name: 'search',
+      component: () => import('@/pages/placeholder-page.vue'),
+      meta: { title: 'Search' },
+    },
+    {
       path: '/chat',
       name: 'chat',
       component: () => import('@/pages/placeholder-page.vue'),

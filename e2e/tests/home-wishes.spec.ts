@@ -34,13 +34,38 @@ test.describe('Home wishes', () => {
     await expect(save).toHaveAttribute('aria-pressed', 'false')
   })
 
-  test('Use button appears on hover', async ({ page }) => {
+  test('Use button appears on hover and stays reachable for keyboard and screen readers', async ({
+    page,
+  }) => {
     const tile = page.getByRole('list', { name: 'Wishes' }).getByRole('listitem').first()
     const use = tile.getByRole('button', { name: 'Use Food Style 1', exact: true })
 
-    await expect(use).toHaveCSS('opacity', '0')
-    await tile.hover()
-    await expect(use).toHaveCSS('opacity', '1')
+    /** Rendered height: the collapsed button is 1 px (sr-only), the shown one is 36 px. */
+    const useHeight = async () => (await use.boundingBox())?.height ?? 0
+
+    await test.step('collapsed but present in the accessibility tree', async () => {
+      await expect(use).toBeAttached()
+      expect(await useHeight()).toBeLessThanOrEqual(1)
+    })
+
+    await test.step('hover shows the full-width Use button', async () => {
+      await tile.hover()
+      await expect.poll(useHeight).toBe(36)
+      await page.mouse.move(0, 0)
+      await expect.poll(useHeight).toBeLessThanOrEqual(1)
+    })
+
+    await test.step('Shift+Tab from the next tile reaches Use and shows it', async () => {
+      await page
+        .getByRole('list', { name: 'Wishes' })
+        .getByRole('listitem')
+        .nth(1)
+        .getByRole('button', { name: /^Save / })
+        .focus()
+      await page.keyboard.press('Shift+Tab')
+      await expect(use).toBeFocused()
+      await expect.poll(useHeight).toBe(36)
+    })
   })
 
   test('Smart Search filters by content type and returns focus', async ({ page }) => {

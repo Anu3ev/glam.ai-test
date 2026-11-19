@@ -17,11 +17,13 @@ function selectMode(value: unknown): void {
 </script>
 
 <template>
+  <!-- A non-zero spacing turns off the group's squared inner corners; spacing 1 is Figma's 4 px gap. -->
   <ToggleGroup
     type="single"
     :model-value="mode"
+    :spacing="1"
     aria-label="Create mode"
-    class="h-10 w-[184px] gap-1 rounded-[20px] bg-secondary p-1"
+    class="h-10 w-[184px] rounded-[20px] bg-secondary p-1"
     @update:model-value="selectMode"
   >
     <ToggleGroupItem
@@ -29,7 +31,7 @@ function selectMode(value: unknown): void {
       :key="option.value"
       :value="option.value"
       :title="`Switch to ${option.label} mode`"
-      class="h-8 flex-1 rounded-2xl text-[13px] leading-4 font-semibold text-white hover:bg-accent hover:text-white data-[state=on]:bg-white data-[state=on]:text-background"
+      class="h-8 flex-1 rounded-2xl text-control text-white hover:bg-transparent hover:text-white data-[state=on]:bg-white data-[state=on]:text-background"
     >
       {{ option.label }}
     </ToggleGroupItem>

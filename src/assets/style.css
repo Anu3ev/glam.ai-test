@@ -3,6 +3,59 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Text styles from the Figma UI Kit (Typography) and the pop-up frames. Each `text-<role>` class
+ * sets size, line height, letter spacing and weight together, so components never set them
+ * one by one. New sizes go here and into `TEXT_STYLES` in `src/lib/utils.ts`.
+ */
+@theme {
+  --text-hero: 28px;
+  --text-hero--line-height: 40px;
+  --text-hero--letter-spacing: -1px;
+  --text-hero--font-weight: 500;
+  --text-section: 18px;
+  --text-section--line-height: 26px;
+  --text-section--letter-spacing: -0.3px;
+  --text-section--font-weight: 700;
+  --text-idea: 15px;
+  --text-idea--line-height: 18px;
+  --text-idea--letter-spacing: -0.1px;
+  --text-idea--font-weight: 700;
+  /* Figma's "Balance" style; renamed because Tailwind's `text-balance` already means text-wrap: balance. */
+  --text-account: 14px;
+  --text-account--line-height: 17px;
+  --text-account--font-weight: 600;
+  --text-control: 13px;
+  --text-control--line-height: 16px;
+  --text-control--font-weight: 600;
+  --text-menu: 13px;
+  --text-menu--line-height: 16px;
+  --text-menu--font-weight: 450;
+  --text-composer: 13px;
+  --text-composer--line-height: 20px;
+  --text-composer--font-weight: 400;
+  --text-promo: 12px;
+  --text-promo--line-height: 15px;
+  --text-promo--font-weight: 500;
+  --text-meta: 12px;
+  --text-meta--line-height: 14px;
+  --text-meta--font-weight: 400;
+  --text-mode: 12px;
+  --text-mode--line-height: 11px;
+  --text-mode--font-weight: 500;
+  --text-caption: 11px;
+  --text-caption--line-height: 16px;
+  --text-caption--font-weight: 500;
+  /* Figma's "Sidebar" style; `text-sidebar` would clash with the shadcn `sidebar` color token. */
+  --text-nav: 9px;
+  --text-nav--line-height: 12px;
+  --text-nav--font-weight: 500;
+
+  /* Text colors from Figma that have no shadcn token: section titles and secondary labels. */
+  --color-title: #f2f2f2;
+  --color-subtle: #a7a5a6;
+}
+
 @theme inline {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
@@ -40,10 +93,14 @@
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /*
+   * shadcn-vue scales xl–4xl from --radius (14/18/22/26 px). Figma uses 12/16/24 px pills, and
+   * only app components use these steps, so they keep Tailwind's standard values.
+   */
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
 }
 
 :root {
@@ -122,6 +179,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Figma icons use 1.4 px strokes at every size; Lucide defaults to 2 in its 24-unit grid. */
+  svg.lucide {
+    stroke-width: 1.4px;
+  }
+
+  svg.lucide * {
+    vector-effect: non-scaling-stroke;
   }
 
   /* Tailwind v4 resets buttons to the default cursor; every enabled clickable control shows the pointer. */

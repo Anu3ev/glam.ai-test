@@ -29,7 +29,7 @@ function toolsFor(tab: ToolsTab): readonly Tool[] {
         :key="tab.value"
         :value="tab.value"
         :title="`Show ${tab.label.toLowerCase()} tools`"
-        class="h-8 flex-none rounded-3xl border-0 px-3 text-[13px] leading-4 font-semibold text-[#a7a5a6] hover:text-white data-[state=active]:bg-white data-[state=active]:text-background dark:text-[#a7a5a6] dark:data-[state=active]:bg-white dark:data-[state=active]:text-background"
+        class="h-8 flex-none rounded-3xl border-0 px-3 text-control text-subtle hover:text-white data-[state=active]:bg-white data-[state=active]:text-background dark:text-subtle dark:data-[state=active]:bg-white dark:data-[state=active]:text-background"
       >
         {{ tab.label }}
       </TabsTrigger>
@@ -51,8 +51,8 @@ function toolsFor(tab: ToolsTab): readonly Tool[] {
               <component :is="tool.icon" class="size-6" />
             </span>
             <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span class="text-[15px] leading-[18px] font-bold text-white">{{ tool.title }}</span>
-              <span class="text-[11px] leading-4 font-medium text-[#a7a5a6]">
+              <span class="text-idea text-white">{{ tool.title }}</span>
+              <span class="text-caption text-subtle">
                 {{ tool.subtitle }}
               </span>
             </span>

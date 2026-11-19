@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { CircleUser, CreditCard, Database, LogOut, Settings, UserRound } from '@lucide/vue'
+import { CreditCard, Database, LogOut, Settings, UserIcon, UserRound } from '@lucide/vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { User } from '@/stores/user'
+import { MENU_ITEM_CLASS } from './menu-item-class'
 
 defineProps<{ user: User }>()
 
@@ -21,8 +22,6 @@ const accountLinks: { label: string; icon: Component }[] = [
   { label: 'Manage Account', icon: Settings },
   { label: 'Credits History', icon: Database },
 ]
-
-const itemClass = 'h-10 gap-3 rounded-[10px] px-3 py-2.5 text-[15px] leading-5 [&_svg]:size-5'
 </script>
 
 <template>
@@ -30,32 +29,37 @@ const itemClass = 'h-10 gap-3 rounded-[10px] px-3 py-2.5 text-[15px] leading-5 [
     <DropdownMenuTrigger
       title="Profile menu"
       aria-label="Profile menu"
-      class="flex size-10 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      class="flex size-10 items-center justify-center rounded-full bg-secondary text-white focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
-      <CircleUser class="size-5" aria-hidden="true" />
+      <UserIcon class="size-5" aria-hidden="true" />
     </DropdownMenuTrigger>
 
-    <DropdownMenuContent align="end" class="w-[304px] rounded-[20px] border-white/10 bg-border p-3">
-      <div class="flex items-center gap-3 px-3 py-2">
-        <span class="flex size-10 items-center justify-center rounded-full bg-secondary">
+    <DropdownMenuContent align="end" class="w-[304px] rounded-[20px] border-white/8 bg-border p-3">
+      <div class="flex items-center gap-3 px-2 pb-4">
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent">
           <UserRound class="size-5" aria-hidden="true" />
         </span>
-        <div class="min-w-0">
-          <p class="truncate text-[15px] font-semibold">{{ user.name }}</p>
-          <p class="truncate text-xs text-muted-foreground">{{ user.email }}</p>
+        <div class="flex min-w-0 flex-col gap-[5px]">
+          <p class="truncate text-account">{{ user.name }}</p>
+          <p class="truncate text-meta text-muted-foreground">{{ user.email }}</p>
         </div>
       </div>
 
-      <DropdownMenuItem v-for="link in accountLinks" :key="link.label" as-child :class="itemClass">
+      <DropdownMenuItem
+        v-for="link in accountLinks"
+        :key="link.label"
+        as-child
+        :class="MENU_ITEM_CLASS"
+      >
         <RouterLink :to="{ name: 'settings' }" :title="link.label">
           <component :is="link.icon" aria-hidden="true" />
           {{ link.label }}
         </RouterLink>
       </DropdownMenuItem>
 
-      <DropdownMenuSeparator class="my-2 bg-white/10" />
+      <DropdownMenuSeparator class="mx-2 my-2.5 bg-accent" />
 
-      <DropdownMenuItem :class="itemClass" title="Sign Out" @select="emit('signOut')">
+      <DropdownMenuItem :class="MENU_ITEM_CLASS" title="Sign Out" @select="emit('signOut')">
         <LogOut aria-hidden="true" />
         Sign Out
       </DropdownMenuItem>

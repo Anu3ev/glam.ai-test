@@ -9,14 +9,12 @@ const mode = useHeroMode()
 
 <template>
   <section aria-labelledby="home-hero-title" class="flex flex-col items-center gap-3">
-    <h1 id="home-hero-title" class="text-center text-[28px] leading-10 font-medium">
-      What will you create next?
-    </h1>
+    <h1 id="home-hero-title" class="text-center text-hero">What will you create next?</h1>
 
     <ModeSwitch v-model="mode" />
 
-    <PromptComposer v-if="mode === 'chat'" class="mt-3" />
+    <PromptComposer v-if="mode === 'chat'" />
     <!-- No tool pages yet: picking a tool opens the prompt composer. -->
-    <ToolsPanel v-else class="mt-3" @select="mode = 'chat'" />
+    <ToolsPanel v-else @select="mode = 'chat'" />
   </section>
 </template>
