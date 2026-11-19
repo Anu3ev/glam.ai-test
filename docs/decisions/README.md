@@ -2,6 +2,11 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · Chat/Tools mode in the URL query
+
+- **Decision:** The home hero keeps its Chat/Tools mode in `?mode=tools` (no query means Chat), read and written through vue-router in `app-home-hero/use-hero-mode.ts`. Switching uses `router.replace`.
+- **Why:** A link or reload opens the same mode, and no store is needed for one value that only the hero uses.
+- **Cost:** Other query parameters must be preserved when the mode changes; switching does not add browser history entries.
 ## 2026-11-19 · Header actions with a mock user
 
 - **Decision:** A Pinia `user` store holds a mock account (name, email, 15 credits). The Profile menu's Sign Out clears it and the header shows "Sign in", which restores it. Upgrade and the account links open Settings; Contact Support is a `mailto:` link. Menus use shadcn-vue `DropdownMenu`. The sidebar Search entry stays out until it has behavior.
