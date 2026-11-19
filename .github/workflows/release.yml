@@ -14,8 +14,10 @@ permissions:
   contents: read
 
 # Only runs that can release share the queue; skipped runs get their own group and never displace
-# a pending release. GitHub keeps one queued run, so when several bumps merge during a release,
-# the middle one gets no tag and its pull requests appear in the next release's notes.
+# a pending release. Known limits: GitHub keeps one queued run, and runs start in the order CI
+# finishes, so with several quick bumps a middle version can get no tag (its pull requests appear
+# in the next release's notes) or an older bump can fail as "not greater". If the deploy succeeds
+# but publishing fails, re-run the failed job to publish the release for the live demo.
 concurrency:
   group: >-
     ${{ (github.event_name == 'workflow_dispatch' ||
@@ -39,9 +41,11 @@ jobs:
       deploy: ${{ steps.decide.outputs.deploy }}
       publish: ${{ steps.decide.outputs.publish }}
     steps:
-      - uses: actions/checkout@v4
+      # A manual run only redeploys the latest release, so it does not need the commit's files.
+      - if: github.event_name == 'workflow_run'
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
 
       - id: decide
@@ -49,11 +53,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           EVENT: ${{ github.event_name }}
-          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           # Errors in any gh call fail the job (bash runs with -e); none of them is read as "no release".
-          tags="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1000 --json tagName --jq '[.[].tagName]')"
-          latest="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --exclude-drafts --json tagName --jq '.[0].tagName // ""')"
+          # Published, stable releases only: drafts and prereleases neither block nor count as latest.
+          tags="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases" \
+            --jq '.[] | select((.draft or .prerelease) | not) | .tag_name')"
+          latest="$(node -e '
+            const stable = process.argv[1].split("\n").filter((tag) => /^v\d+\.\d+\.\d+$/.test(tag))
+            const parse = (tag) => tag.slice(1).split(".").map(Number)
+            const compare = (a, b) => parse(a).map((part, i) => part - parse(b)[i]).find((d) => d !== 0) ?? 0
+            console.log(stable.sort(compare).at(-1) ?? "")
+          ' "$tags")"
 
           if [ "$EVENT" = "workflow_dispatch" ]; then
             if [ -z "$latest" ]; then
@@ -72,15 +83,21 @@ jobs:
           fi
           tag="v$version"
 
-          if node -e 'process.exit(JSON.parse(process.argv[1]).includes(process.argv[2]) ? 0 : 1)' "$tags" "$tag"; then
+          if grep -qx "$tag" <<< "$tags"; then
             echo "$tag is already released; nothing to do."
             { echo "deploy=false"; echo "publish=false"; } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
+          # A git tag without a release would make the release point at that old commit, not this one.
+          if [ -n "$(git ls-remote --tags "https://github.com/$GITHUB_REPOSITORY.git" "refs/tags/$tag")" ]; then
+            echo "Tag $tag exists without a published release; delete the tag or bump the version."
+            exit 1
+          fi
+
           # A version that is not greater than the latest release is a mistake, not a release.
           node -e '
-            const parse = (tag) => tag.replace(/^v/, "").split(".").map(Number)
+            const parse = (tag) => tag.slice(1).split(".").map(Number)
             const [next, latest] = [parse(process.argv[1]), parse(process.argv[2] || "v0.0.0")]
             const diff = next.map((part, index) => part - latest[index]).find((part) => part !== 0) ?? 0
             if (diff <= 0) {
