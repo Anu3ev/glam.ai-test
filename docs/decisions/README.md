@@ -2,6 +2,12 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · Modern Web Guidance was not used during the build
+
+- **Decision:** Correction of [Modern Web Guidance without installing](#2026-11-19--modern-web-guidance-without-installing): the CLI was checked but never consulted while building the page. From now on, the user's `code-writer` skill makes it mandatory before UI, CSS or client-side browser code: pinned version, `DISABLE_TELEMETRY=1`, no installation, and the user's rules and project decisions take priority over its guides.
+- **Why:** The earlier entry described an intention as if it were practice.
+- **Cost:** The existing components have not been checked against the guidance yet.
+
 ## 2026-11-19 · Releases deploy the demo
 
 - **Decision:** `.github/workflows/release.yml` replaces the deploy-on-every-push Pages workflow. After CI passes for a push to `main` of this repository (not pull request or fork runs), a commit whose `package.json` version has no release yet is built by a read-only job, deployed to GitHub Pages, and then published as the GitHub Release `v<version>` with notes generated from the merged pull requests. The version must be `X.Y.Z` and greater than the latest release. A manual run redeploys the latest release. The version starts at 1.1.0 (the design fidelity work after `v1.0.0`). Replaces the deploy part of [Tests, CI and preview](#2026-11-19--tests-ci-and-preview).
