@@ -12,7 +12,7 @@ Newest first. A changed decision gets a new entry that links to the old one.
 
 - **Decision:** Playwright (Chromium, 1280 px viewport) covers behavior and visual screenshots in `e2e/tests`. CI runs lint, type-check, build and Playwright on every PR. Every push to `main` deploys a preview to GitHub Pages (<https://anu3ev.github.io/glam.ai-test/>), with `404.html` as the SPA fallback. Node 24 LTS is pinned in `.nvmrc`.
 - **Why:** Each PR is merged only after automated checks; reviewers get a live link without running the app.
-- **Cost:** Screenshot baselines are per platform, so CI keeps its own; a design change means updating baselines with `npm run test:e2e:update`.
+- **Cost:** Screenshot baselines are git-ignored for now, so CI records them (`--update-snapshots=missing`) and visual diffs are only compared locally. Committing CI-generated baselines is open.
 
 ## 2026-11-19 · Design values from the Figma REST API
 
