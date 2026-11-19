@@ -8,7 +8,6 @@ Newest first. A changed decision gets a new entry that links to the old one.
 - **Why:** The earlier entry described an intention as if it were practice.
 - **Cost:** The existing components have not been checked against the guidance yet.
 
-
 ## 2026-11-19 · Releases deploy the demo
 
 - **Decision:** `.github/workflows/release.yml` replaces the deploy-on-every-push Pages workflow. After CI passes for a push to `main` of this repository (not pull request or fork runs), a commit whose `package.json` version has no release yet is built by a read-only job, deployed to GitHub Pages, and then published as the GitHub Release `v<version>` with notes generated from the merged pull requests. The version must be `X.Y.Z` and greater than the latest release. A manual run redeploys the latest release. The version starts at 1.1.0 (the design fidelity work after `v1.0.0`). Replaces the deploy part of [Tests, CI and preview](#2026-11-19--tests-ci-and-preview).
