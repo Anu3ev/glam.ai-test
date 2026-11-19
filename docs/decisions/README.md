@@ -2,6 +2,12 @@
 
 Newest first. A changed decision gets a new entry that links to the old one.
 
+## 2026-11-19 · Pointer cursor on clickable controls
+
+- **Decision:** A base rule in `src/assets/style.css` gives every enabled button, menu item, tab, option, `summary` and `select` the pointer cursor; disabled controls keep the default one. The generated shadcn-vue menu items use `cursor-pointer`, and `components.json` has `"pointer": true` so new components are generated the same way.
+- **Why:** Owner's rule. Tailwind v4 resets buttons to the default cursor and shadcn-vue menu items set `cursor-default`, so working controls looked inert.
+- **Cost:** Generated menu files differ from the CLI output of the `"pointer": false` style; re-adding them with the CLI keeps the pointer only because of the `components.json` setting.
+
 ## 2026-11-19 · Smart Search filters locally in the mock API
 
 - **Decision:** `fetchWishes({ category, contentTypes })` in `src/api/wishes.ts` filters 30 generated wishes by category and Smart Search content types after a 300 ms delay. The store keeps the applied filters and reloads through the same call.

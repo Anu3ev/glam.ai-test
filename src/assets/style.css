@@ -123,4 +123,15 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Tailwind v4 resets buttons to the default cursor; every enabled clickable control shows the pointer. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab']:not([aria-disabled='true']),
+  [role='option']:not([aria-disabled='true']),
+  [role^='menuitem']:not([data-disabled]),
+  summary,
+  select:not(:disabled) {
+    cursor: pointer;
+  }
 }
