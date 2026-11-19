@@ -1,9 +1,10 @@
 /**
  * Saves Figma node data for the home page frames to `.figma-cache/nodes.json`.
- * Reads `FIGMA_TOKEN` from `.env.local`. One run costs one Tier 1 REST request.
+ * Reads `FIGMA_TOKEN` from the environment or `.env.local`. One run costs one Tier 1 REST request.
  *
  * Usage: node scripts/fetch-figma.ts
  */
+import { existsSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 
 /** Original mockup file; the token owner needs view access to it. */
@@ -12,7 +13,10 @@ const FILE_KEY = 'kU4QjBSdDHbwSVZLSm9VTL'
 /** Home/Chat, Home/Tools and the Pop-up section. */
 const NODE_IDS = ['3:103', '76:3404', '96:5168']
 
-process.loadEnvFile('.env.local')
+// A token exported in the shell works too; `.env.local` only fills it in when present.
+if (existsSync('.env.local')) {
+  process.loadEnvFile('.env.local')
+}
 
 const token = process.env.FIGMA_TOKEN
 if (!token) {
